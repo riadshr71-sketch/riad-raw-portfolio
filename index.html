@@ -47,6 +47,24 @@
   }
   .facet-lines{ position:absolute; inset:0; pointer-events:none; opacity:0.35; }
 
+  .hero-vignette{
+    position:relative;
+    background:
+      radial-gradient(circle at 50% 42%, #050403 0%, #120d08 20%, #3a2a0c 42%, #7a5a18 62%, #c9962f 82%, #f0d38c 100%);
+    color:var(--cream);
+  }
+  .hero-vignette::before{
+    content:'';
+    position:absolute; inset:0; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+  }
+  .hero-vignette::after{
+    content:''; position:absolute; top:0; left:0; right:0; height:140px;
+    background:linear-gradient(to bottom, rgba(5,4,3,0.6), transparent);
+    pointer-events:none;
+  }
+
   /* ---------- NAV ---------- */
   nav{
     position:fixed; top:0; left:0; right:0; z-index:100;
@@ -89,30 +107,30 @@
   .hero-logo-text .l2{ font-family:'Archivo Black'; font-size:2rem; letter-spacing:0.04em; color:var(--ink); margin-top:2px; }
 
   .hero-divider{ display:flex; align-items:center; gap:18px; margin-bottom:26px; }
-  .hero-divider .bar{ width:70px; height:1px; background:rgba(18,13,8,0.4); }
+  .hero-divider .bar{ width:70px; height:1px; background:rgba(243,233,210,0.35); }
 
   .hero h1{
     font-family:'Anton', sans-serif;
     font-size:clamp(2.6rem, 9vw, 6.5rem);
-    line-height:1.05; color:var(--ink);
-    text-shadow:0 1px 0 rgba(255,255,255,0.25);
+    line-height:1.05; color:var(--gold-light);
+    text-shadow:0 2px 30px rgba(0,0,0,0.5);
   }
-  .hero-sub{ max-width:440px; margin-top:22px; color:rgba(18,13,8,0.75); font-size:1.02rem; line-height:1.6; }
+  .hero-sub{ max-width:440px; margin-top:22px; color:var(--cream-dim); font-size:1.02rem; line-height:1.6; }
 
   .hero-ig{
     position:relative; z-index:2; margin-top:34px;
     display:inline-flex; align-items:center; gap:10px;
     font-family:'Archivo Black'; font-size:0.95rem; letter-spacing:0.03em;
-    color:var(--ink); text-decoration:none;
-    border-bottom:2px solid var(--ink); padding-bottom:4px;
+    color:var(--gold-light); text-decoration:none;
+    border-bottom:2px solid var(--gold); padding-bottom:4px;
   }
 
   .scroll-cue{
     position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
     font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase;
-    color:rgba(18,13,8,0.55); display:flex; flex-direction:column; align-items:center; gap:6px;
+    color:var(--cream-dim); display:flex; flex-direction:column; align-items:center; gap:6px;
   }
-  .scroll-cue .line{ width:1px; height:26px; background:rgba(18,13,8,0.35); animation:scrolldown 1.8s infinite; }
+  .scroll-cue .line{ width:1px; height:26px; background:rgba(243,233,210,0.3); animation:scrolldown 1.8s infinite; }
   @keyframes scrolldown{ 0%{ transform:scaleY(0); transform-origin:top; } 50%{ transform:scaleY(1); transform-origin:top; } 51%{ transform-origin:bottom; } 100%{ transform:scaleY(0); transform-origin:bottom; } }
 
   /* ---------- SECTION ---------- */
@@ -359,9 +377,9 @@
 </nav>
 
 <!-- ================= HERO ================= -->
-<header class="hero gold-panel">
+<header class="hero hero-vignette">
   <svg class="facet-lines" viewBox="0 0 1000 1000" preserveAspectRatio="none">
-    <g stroke="var(--ink)" stroke-width="1" fill="none" opacity="0.5">
+    <g stroke="var(--gold-light)" stroke-width="1" fill="none" opacity="0.4">
       <polyline points="0,780 180,900 60,1000"/>
       <polyline points="60,1000 260,860 180,900"/>
       <polyline points="820,0 1000,150 1000,0"/>
