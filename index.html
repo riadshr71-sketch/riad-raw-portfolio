@@ -593,9 +593,10 @@
     albumViewTitle.textContent = album.title;
     albumViewGrid.innerHTML = '';
     album.photos.forEach((photo, photoIndex) => {
+      const thumbSrc = (album.thumbs && album.thumbs[photoIndex]) || photo;
       const item = document.createElement('div');
       item.className = 'album-view-item';
-      item.innerHTML = `<img src="${photo}" alt="${album.title} ${photoIndex + 1}" loading="lazy">`;
+      item.innerHTML = `<img src="${thumbSrc}" alt="${album.title} ${photoIndex + 1}" loading="lazy">`;
       item.addEventListener('click', () => openLightbox(albumIndex, photoIndex));
       albumViewGrid.appendChild(item);
     });

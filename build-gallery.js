@@ -1,7 +1,7 @@
 // build-gallery.js
 // Scanne le dossier /images (structure: images/<categorie>/<nom-album>/*.jpg),
-// compresse/redimensionne automatiquement chaque photo pour le web,
-// puis genere gallery-data.js, utilise par index.html pour afficher les photos.
+// genere DEUX versions de chaque photo : une miniature legere (grille/apercu)
+// et une version qualite complete (zoom plein ecran), puis genere gallery-data.js.
 // Ce script tourne automatiquement a chaque deploiement Vercel — tu n'as rien a lancer toi-meme.
 
 const fs = require('fs');
@@ -12,8 +12,11 @@ const IMAGES_DIR = path.join(__dirname, 'images');
 const OPTIMIZED_DIR = path.join(__dirname, 'optimized');
 const OUTPUT_FILE = path.join(__dirname, 'gallery-data.js');
 const VALID_EXT = ['.jpg', '.jpeg', '.png', '.webp'];
-const MAX_WIDTH = 1600;
-const JPEG_QUALITY = 78;
+
+const FULL_WIDTH = 1600;
+const FULL_QUALITY = 78;
+const THUMB_WIDTH = 700;
+const THUMB_QUALITY = 68;
 
 function isImage(file) {
   return VALID_EXT.includes(path.extname(file).toLowerCase());
@@ -23,12 +26,12 @@ function toWebPath(p) {
   return p.split(path.sep).join('/').replace(/ /g, '%20');
 }
 
-async function compressImage(srcPath, destPath) {
+async function makeVersion(srcPath, destPath, width, quality) {
   fs.mkdirSync(path.dirname(destPath), { recursive: true });
   await sharp(srcPath)
     .rotate()
-    .resize({ width: MAX_WIDTH, withoutEnlargement: true })
-    .jpeg({ quality: JPEG_QUALITY, mozjpeg: true })
+    .resize({ width, withoutEnlargement: true })
+    .jpeg({ quality, mozjpeg: true })
     .toFile(destPath);
 }
 
@@ -56,17 +59,23 @@ async function buildGallery() {
       const albumPath = path.join(categoryPath, albumDir.name);
 
       const files = fs.readdirSync(albumPath).filter(isImage).sort();
-      const photos = [];
+      const photos = [];  // qualite complete, pour le zoom plein ecran
+      const thumbs = [];  // miniatures legeres, pour la grille et la vue album
 
       for (const file of files) {
         const srcPath = path.join(albumPath, file);
         const outName = path.parse(file).name + '.jpg';
-        const outRelPath = path.join('optimized', category, albumDir.name, outName);
-        const outAbsPath = path.join(OPTIMIZED_DIR, category, albumDir.name, outName);
+
+        const fullRel = path.join('optimized', 'full', category, albumDir.name, outName);
+        const fullAbs = path.join(OPTIMIZED_DIR, 'full', category, albumDir.name, outName);
+        const thumbRel = path.join('optimized', 'thumb', category, albumDir.name, outName);
+        const thumbAbs = path.join(OPTIMIZED_DIR, 'thumb', category, albumDir.name, outName);
 
         try {
-          await compressImage(srcPath, outAbsPath);
-          photos.push(toWebPath(outRelPath));
+          await makeVersion(srcPath, fullAbs, FULL_WIDTH, FULL_QUALITY);
+          await makeVersion(srcPath, thumbAbs, THUMB_WIDTH, THUMB_QUALITY);
+          photos.push(toWebPath(fullRel));
+          thumbs.push(toWebPath(thumbRel));
         } catch (err) {
           console.error(`Erreur compression ${srcPath}:`, err.message);
         }
@@ -76,8 +85,9 @@ async function buildGallery() {
         albums.push({
           category,
           title: albumTitle,
-          cover: photos[0],
-          photos
+          cover: thumbs[0],
+          photos,
+          thumbs
         });
       }
     }
@@ -85,7 +95,7 @@ async function buildGallery() {
 
   const output = `window.GALLERY = ${JSON.stringify(albums, null, 2)};\n`;
   fs.writeFileSync(OUTPUT_FILE, output);
-  console.log(`Galerie generee : ${albums.length} album(s), photos compressees et redimensionnees.`);
+  console.log(`Galerie generee : ${albums.length} album(s), miniatures + qualite complete generees.`);
   albums.forEach(a => console.log(`  - [${a.category}] ${a.title} (${a.photos.length} photos)`));
 }
 
