@@ -49,8 +49,7 @@
 
   .hero-vignette{
     position:relative;
-    background:
-      radial-gradient(circle at 50% 42%, #050403 0%, #120d08 20%, #3a2a0c 42%, #7a5a18 62%, #c9962f 82%, #f0d38c 100%);
+    background:linear-gradient(180deg, #050403 0%, #120d08 18%, #3a2a0c 38%, #7a5a18 58%, #c9962f 78%, #f0d38c 100%);
     color:var(--cream);
   }
   .hero-vignette::before{
@@ -60,8 +59,8 @@
     mix-blend-mode:overlay;
   }
   .hero-vignette::after{
-    content:''; position:absolute; top:0; left:0; right:0; height:140px;
-    background:linear-gradient(to bottom, rgba(5,4,3,0.6), transparent);
+    content:''; position:absolute; top:0; left:0; right:0; height:100px;
+    background:linear-gradient(to bottom, rgba(5,4,3,0.4), transparent);
     pointer-events:none;
   }
 
@@ -76,7 +75,11 @@
   .nav-logo svg{ width:30px; height:30px; }
   .nav-logo-text{ line-height:1; }
   .nav-logo img{ height:40px; width:auto; display:block; background:var(--cream); padding:4px 10px; border-radius:3px; }
-  .hero-logo img{ height:72px; width:auto; display:block; }
+  .hero-logo img{
+    height:72px; width:auto; display:block;
+    background:rgba(5,4,3,0.4); padding:12px 22px; border-radius:6px;
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  }
   .nav-logo-text .l1{ font-family:'Space Grotesk'; font-size:0.85rem; letter-spacing:0.22em; color:var(--gold-light); display:block; }
   .nav-logo-text .l2{ font-family:'Archivo Black'; font-size:1.05rem; letter-spacing:0.04em; color:var(--cream); display:block; margin-top:1px; }
   .nav-links{ display:flex; align-items:center; gap:28px; font-size:0.76rem; letter-spacing:0.1em; text-transform:uppercase; }
