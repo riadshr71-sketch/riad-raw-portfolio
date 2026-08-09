@@ -63,8 +63,16 @@
   .nav-links a{ text-decoration:none; color:var(--cream-dim); transition:color 0.2s; }
   .nav-links a:hover{ color:var(--gold-light); }
   .nav-ig{ color:var(--gold-light) !important; border:1px solid var(--gold-deep); padding:8px 14px; }
-  .nav-toggle{ display:none; background:none; border:none; color:var(--cream); font-size:1.6rem; cursor:pointer; }
-  @media (max-width:760px){ .nav-links{ display:none; } .nav-toggle{ display:block; } }
+  .nav-toggle{ display:none; background:none; border:none; color:var(--cream); font-size:1.6rem; cursor:pointer; z-index:101; }
+  @media (max-width:760px){
+    .nav-links{
+      display:none; position:fixed; top:0; right:0; bottom:0; width:70vw; max-width:300px;
+      background:var(--bg-panel); flex-direction:column; align-items:flex-start;
+      padding:100px 30px; gap:26px; border-left:1px solid var(--line); z-index:100;
+    }
+    .nav-links.open{ display:flex; }
+    .nav-toggle{ display:block; }
+  }
 
   /* ---------- HERO ---------- */
   .hero{
@@ -139,7 +147,9 @@
     background:linear-gradient(150deg, #1c1509 0%, #0a0806 100%);
     display:flex; align-items:center; justify-content:center; overflow:hidden;
   }
-  .frame-img img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .frame-img img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.5s cubic-bezier(0.22,1,0.36,1); }
+  .frame:hover .frame-img img{ transform:scale(1.1); }
+  @media (hover:none){ .frame:hover .frame-img img{ transform:none; } }
   .frame-placeholder{
     font-family:'Inter'; font-size:0.7rem; color:var(--cream-dim);
     text-align:center; padding:20px; opacity:0.5; text-transform:uppercase; letter-spacing:0.05em;
@@ -231,6 +241,34 @@
     .lb-nav{ width:40px; height:40px; font-size:1.5rem; }
     .lb-title-bar{ font-size:0.85rem; top:16px; left:16px; }
   }
+
+  /* ---------- ALBUM VIEW (grille complete) ---------- */
+  .album-view{
+    display:none; position:fixed; inset:0; z-index:900;
+    background:var(--bg); overflow-y:auto;
+  }
+  .album-view.open{ display:block; }
+  .album-view-head{
+    position:sticky; top:0; z-index:2;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 6vw; background:rgba(10,8,6,0.95); border-bottom:1px solid var(--line);
+  }
+  .album-view-title{ font-family:'Anton'; font-size:clamp(1.3rem, 4vw, 2.2rem); color:var(--gold-light); }
+  .album-view-grid{
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:3px;
+    padding:3px 6vw 100px;
+  }
+  @media (max-width:900px){ .album-view-grid{ grid-template-columns:repeat(3, 1fr); } }
+  @media (max-width:560px){ .album-view-grid{ grid-template-columns:repeat(2, 1fr); padding-left:3px; padding-right:3px; } }
+  .album-view-item{
+    aspect-ratio:1/1; overflow:hidden; cursor:pointer; background:var(--bg-panel);
+  }
+  .album-view-item img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    transition:transform 0.4s cubic-bezier(0.22,1,0.36,1);
+  }
+  .album-view-item:hover img{ transform:scale(1.08); }
+  @media (hover:none){ .album-view-item:hover img{ transform:none; } }
 
   footer{
     padding:32px 6vw; border-top:1px solid var(--line);
@@ -338,6 +376,15 @@
   <button class="lb-nav lb-next" id="lb-next" aria-label="Suivant">›</button>
 </div>
 
+<!-- ================= VUE ALBUM (grille de toutes les photos) ================= -->
+<div id="album-view" class="album-view">
+  <div class="album-view-head">
+    <div class="album-view-title" id="album-view-title"></div>
+    <button class="lb-close" id="album-close" aria-label="Fermer">✕</button>
+  </div>
+  <div class="album-view-grid" id="album-view-grid"></div>
+</div>
+
 <!-- ================= VIDÉO (à part, un seul élément) ================= -->
 <section class="section" id="video-section">
   <div class="section-head">
@@ -429,7 +476,7 @@
           <div class="frame-cat">${CATEGORY_LABELS[album.category] || album.category}</div>
           <div class="frame-title">${album.title}</div>
         </div>`;
-      frame.addEventListener('click', () => openLightbox(i, 0));
+      frame.addEventListener('click', () => openAlbumView(i));
       grid.appendChild(frame);
     });
 
@@ -446,6 +493,37 @@
       });
     });
   }
+
+  // ---------- VUE ALBUM (grille complete) ----------
+  const albumView = document.getElementById('album-view');
+  const albumViewTitle = document.getElementById('album-view-title');
+  const albumViewGrid = document.getElementById('album-view-grid');
+
+  function openAlbumView(albumIndex) {
+    const album = gallery[albumIndex];
+    albumViewTitle.textContent = album.title;
+    albumViewGrid.innerHTML = '';
+    album.photos.forEach((photo, photoIndex) => {
+      const item = document.createElement('div');
+      item.className = 'album-view-item';
+      item.innerHTML = `<img src="${photo}" alt="${album.title} ${photoIndex + 1}" loading="lazy">`;
+      item.addEventListener('click', () => openLightbox(albumIndex, photoIndex));
+      albumViewGrid.appendChild(item);
+    });
+    albumView.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeAlbumView(){
+    albumView.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('album-close').addEventListener('click', closeAlbumView);
+
+  // menu mobile
+  const navToggle = document.querySelector('.nav-toggle');
+  const navLinks = document.querySelector('.nav-links');
+  navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
 
   // ---------- LIGHTBOX ----------
   let currentAlbum = 0, currentPhoto = 0;
@@ -487,6 +565,15 @@
     if (e.key === 'ArrowRight') nextPhoto();
     if (e.key === 'ArrowLeft') prevPhoto();
   });
+
+  // swipe tactile (mobile)
+  let touchStartX = 0;
+  lb.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive:true });
+  lb.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(dx) < 40) return;
+    if (dx < 0) nextPhoto(); else prevPhoto();
+  }, { passive:true });
 
   renderGallery();
 </script>
