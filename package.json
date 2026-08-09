@@ -1,0 +1,11 @@
+{
+  "name": "riad-raw-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build-gallery.js"
+  },
+  "dependencies": {
+    "sharp": "^0.33.5"
+  }
+}
