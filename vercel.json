@@ -1,0 +1,5 @@
+{
+  "buildCommand": "node build-gallery.js",
+  "outputDirectory": ".",
+  "framework": null
+}

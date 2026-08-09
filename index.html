@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riad Raw — Photographie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600&family=Archivo+Black&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0806;
+    --bg-panel: #120d08;
+    --gold: #c9962f;
+    --gold-light: #f0d38c;
+    --gold-deep: #7a5a18;
+    --cream: #f3e9d2;
+    --cream-dim: #cbbe9c;
+    --ink: #120d08;
+    --line: rgba(201,150,47,0.28);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{ background:var(--bg); color:var(--cream); font-family:'Inter', sans-serif; overflow-x:hidden; }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+  ::selection{ background:var(--gold); color:var(--ink); }
+  a{ color:inherit; }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+
+  .western{ font-family:'Anton', sans-serif; }
+
+  .gold-panel{
+    position:relative;
+    background:
+      radial-gradient(ellipse 120% 90% at 30% 15%, rgba(255,255,255,0.22), transparent 55%),
+      linear-gradient(160deg, #3a2a0c 0%, #7a5a18 22%, #c9962f 48%, #f0d38c 62%, #b8873a 80%, #6b4d15 100%);
+    color:var(--ink);
+  }
+  .gold-panel::before{
+    content:'';
+    position:absolute; inset:0; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+  }
+  .facet-lines{ position:absolute; inset:0; pointer-events:none; opacity:0.35; }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 5vw;
+    background:linear-gradient(to bottom, rgba(10,8,6,0.92), transparent);
+  }
+  .nav-logo{ display:flex; align-items:center; gap:10px; }
+  .nav-logo svg{ width:30px; height:30px; }
+  .nav-logo-text{ line-height:1; }
+  .nav-logo-text .l1{ font-family:'Space Grotesk'; font-size:0.85rem; letter-spacing:0.22em; color:var(--gold-light); display:block; }
+  .nav-logo-text .l2{ font-family:'Archivo Black'; font-size:1.05rem; letter-spacing:0.04em; color:var(--cream); display:block; margin-top:1px; }
+  .nav-links{ display:flex; align-items:center; gap:28px; font-size:0.76rem; letter-spacing:0.1em; text-transform:uppercase; }
+  .nav-links a{ text-decoration:none; color:var(--cream-dim); transition:color 0.2s; }
+  .nav-links a:hover{ color:var(--gold-light); }
+  .nav-ig{ color:var(--gold-light) !important; border:1px solid var(--gold-deep); padding:8px 14px; }
+  .nav-toggle{ display:none; background:none; border:none; color:var(--cream); font-size:1.6rem; cursor:pointer; }
+  @media (max-width:760px){ .nav-links{ display:none; } .nav-toggle{ display:block; } }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative; min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:120px 6vw 80px; text-align:center;
+  }
+  .hero-logo{ display:flex; align-items:center; gap:16px; margin-bottom:34px; }
+  .hero-logo svg{ width:56px; height:56px; }
+  .hero-logo-text{ text-align:left; line-height:1; }
+  .hero-logo-text .l1{ font-family:'Space Grotesk'; font-size:1.3rem; letter-spacing:0.3em; color:var(--ink); opacity:0.85; }
+  .hero-logo-text .l2{ font-family:'Archivo Black'; font-size:2rem; letter-spacing:0.04em; color:var(--ink); margin-top:2px; }
+
+  .hero-divider{ display:flex; align-items:center; gap:18px; margin-bottom:26px; }
+  .hero-divider .bar{ width:70px; height:1px; background:rgba(18,13,8,0.4); }
+
+  .hero h1{
+    font-family:'Anton', sans-serif;
+    font-size:clamp(2.6rem, 9vw, 6.5rem);
+    line-height:1.05; color:var(--ink);
+    text-shadow:0 1px 0 rgba(255,255,255,0.25);
+  }
+  .hero-sub{ max-width:440px; margin-top:22px; color:rgba(18,13,8,0.75); font-size:1.02rem; line-height:1.6; }
+
+  .hero-ig{
+    position:relative; z-index:2; margin-top:34px;
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:'Archivo Black'; font-size:0.95rem; letter-spacing:0.03em;
+    color:var(--ink); text-decoration:none;
+    border-bottom:2px solid var(--ink); padding-bottom:4px;
+  }
+
+  .scroll-cue{
+    position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
+    font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase;
+    color:rgba(18,13,8,0.55); display:flex; flex-direction:column; align-items:center; gap:6px;
+  }
+  .scroll-cue .line{ width:1px; height:26px; background:rgba(18,13,8,0.35); animation:scrolldown 1.8s infinite; }
+  @keyframes scrolldown{ 0%{ transform:scaleY(0); transform-origin:top; } 50%{ transform:scaleY(1); transform-origin:top; } 51%{ transform-origin:bottom; } 100%{ transform:scaleY(0); transform-origin:bottom; } }
+
+  /* ---------- SECTION ---------- */
+  .section{ padding:120px 6vw; max-width:1400px; margin:0 auto; }
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:16px;
+    border-bottom:1px solid var(--line); padding-bottom:20px; margin-bottom:56px;
+  }
+  .section-head h2{ font-family:'Anton'; font-size:clamp(2rem, 5vw, 3.4rem); color:var(--gold-light); }
+
+  .title-panel{ position:relative; overflow:hidden; padding:90px 6vw; text-align:center; }
+  .title-panel h2{ position:relative; z-index:2; font-family:'Anton'; font-size:clamp(2.4rem, 7vw, 4.6rem); color:var(--ink); }
+  .title-panel .kicker{
+    position:relative; z-index:2; font-family:'Space Grotesk'; font-size:0.8rem; letter-spacing:0.3em;
+    color:rgba(18,13,8,0.7); margin-bottom:14px; text-transform:uppercase;
+  }
+
+  /* ---------- GALLERY / ALBUMS ---------- */
+  .filters{ display:flex; gap:10px; flex-wrap:wrap; margin:0 auto 44px; padding:0 6vw; max-width:1400px; }
+  .filter-btn{
+    font-family:'Inter'; font-weight:500; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em;
+    background:transparent; border:1px solid var(--line); color:var(--cream-dim);
+    padding:9px 18px; cursor:pointer; transition:all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active{ color:var(--ink); background:var(--gold); border-color:var(--gold); }
+
+  .grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:2px; background:var(--line); padding:0 6vw 120px; max-width:1400px; margin:0 auto; }
+  @media (max-width:900px){ .grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .grid{ grid-template-columns:1fr; } }
+
+  .frame{ background:var(--bg); cursor:pointer; }
+  .frame-img{
+    position:relative; aspect-ratio:4/5;
+    background:linear-gradient(150deg, #1c1509 0%, #0a0806 100%);
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  .frame-img img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .frame-placeholder{
+    font-family:'Inter'; font-size:0.7rem; color:var(--cream-dim);
+    text-align:center; padding:20px; opacity:0.5; text-transform:uppercase; letter-spacing:0.05em;
+  }
+  .frame-img::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(to top, rgba(10,8,6,0.92) 0%, transparent 50%);
+    opacity:0.85; transition:opacity 0.25s;
+  }
+  .frame-cat{
+    position:absolute; top:14px; left:14px;
+    font-family:'Inter'; font-weight:600; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--gold-light); background:rgba(10,8,6,0.6); padding:4px 10px; border:1px solid var(--gold-deep);
+  }
+  .frame-title{
+    position:absolute; bottom:16px; left:16px; right:16px;
+    font-family:'Anton'; font-size:1.3rem; color:var(--gold-light);
+  }
+
+  /* ---------- ABOUT ---------- */
+  .about-wrap{ display:grid; grid-template-columns:0.8fr 1.2fr; gap:64px; align-items:center; }
+  @media (max-width:800px){ .about-wrap{ grid-template-columns:1fr; } }
+  .about-portrait{
+    aspect-ratio:3/4; border:1px solid var(--line);
+    background:linear-gradient(160deg,#1c1509,#0a0806);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Inter'; font-size:0.7rem; color:var(--cream-dim); text-align:center; padding:20px;
+    text-transform:uppercase; letter-spacing:0.05em;
+  }
+  .about-text p{ font-size:1.08rem; line-height:1.8; color:var(--cream-dim); margin-bottom:20px; }
+  .about-text strong{ color:var(--gold-light); font-weight:600; }
+
+  /* ---------- CONTACT ---------- */
+  .contact-section{ background:var(--bg-panel); text-align:center; }
+  .contact-lead{ font-family:'Anton'; font-size:2.6rem; color:var(--gold-light); margin-bottom:18px; line-height:1.15; }
+  .contact-section p{ color:var(--cream-dim); line-height:1.6; max-width:420px; margin:0 auto; }
+  .ig-button{
+    margin-top:36px; display:inline-flex; align-items:center; gap:12px;
+    font-family:'Archivo Black'; font-size:1.1rem; letter-spacing:0.02em;
+    color:var(--ink); background:var(--gold); text-decoration:none;
+    padding:16px 32px; transition:opacity 0.2s;
+  }
+  .ig-button:hover{ opacity:0.85; }
+  .ig-button svg{ width:22px; height:22px; }
+
+  .empty-msg{
+    grid-column:1/-1; background:var(--bg); padding:60px 20px; text-align:center;
+    color:var(--cream-dim); font-size:0.85rem;
+  }
+  .empty-msg code{ color:var(--gold-light); }
+
+  /* ---------- VIDEO BLOCK ---------- */
+  .video-block{ max-width:700px; }
+  .video-thumb{
+    aspect-ratio:16/9; border:1px solid var(--line);
+    background:linear-gradient(150deg, #1c1509 0%, #0a0806 100%);
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  .video-thumb iframe{ width:100%; height:100%; border:none; }
+  .video-caption{ margin-top:16px; font-family:'Anton'; font-size:1.4rem; color:var(--gold-light); }
+
+  /* ---------- LIGHTBOX ---------- */
+  .lightbox{
+    display:none; position:fixed; inset:0; z-index:1000;
+    background:rgba(5,4,3,0.96);
+    align-items:center; justify-content:center;
+  }
+  .lightbox.open{ display:flex; }
+  .lb-img{ max-width:86vw; max-height:80vh; object-fit:contain; }
+  .lb-close{
+    position:absolute; top:24px; right:28px; background:none; border:none;
+    color:var(--cream); font-size:1.6rem; cursor:pointer; z-index:2;
+  }
+  .lb-title-bar{
+    position:absolute; top:26px; left:28px; display:flex; align-items:baseline; gap:14px;
+    font-family:'Anton'; font-size:1.1rem; color:var(--gold-light); letter-spacing:0.02em;
+  }
+  #lb-count{ color:var(--cream-dim); font-size:0.75rem; }
+  .lb-nav{
+    position:absolute; top:50%; transform:translateY(-50%);
+    background:rgba(20,15,8,0.6); border:1px solid var(--line); color:var(--cream);
+    font-size:2rem; width:52px; height:52px; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:background 0.2s;
+  }
+  .lb-nav:hover{ background:rgba(201,150,47,0.3); }
+  .lb-prev{ left:20px; }
+  .lb-next{ right:20px; }
+  @media (max-width:600px){
+    .lb-nav{ width:40px; height:40px; font-size:1.5rem; }
+    .lb-title-bar{ font-size:0.85rem; top:16px; left:16px; }
+  }
+
+  footer{
+    padding:32px 6vw; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    font-family:'Inter'; font-size:0.72rem; color:var(--cream-dim);
+    text-transform:uppercase; letter-spacing:0.05em;
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="cam-icon" viewBox="0 0 64 64">
+    <g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="20" width="40" height="30" rx="2"/>
+      <path d="M14 20 L18 12 H34 L38 20"/>
+      <circle cx="26" cy="35" r="10"/>
+      <circle cx="26" cy="35" r="4.5"/>
+      <path d="M46 27 h10 v16 a3 3 0 0 1 -3 3 h-7 z"/>
+      <line x1="10" y1="26" x2="16" y2="26"/>
+    </g>
+  </symbol>
+  <symbol id="ig-icon" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="3" width="18" height="18" rx="5"/>
+      <circle cx="12" cy="12" r="4"/>
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+    </g>
+  </symbol>
+</svg>
+
+<nav>
+  <div class="nav-logo">
+    <svg><use href="#cam-icon" style="color:var(--gold-light)"/></svg>
+    <div class="nav-logo-text">
+      <span class="l1">RIAD</span>
+      <span class="l2">RAW</span>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="#work">Album</a>
+    <a href="#about">À propos</a>
+    <a href="https://instagram.com/riad.raw" target="_blank" rel="noopener" class="nav-ig">@riad.raw</a>
+  </div>
+  <button class="nav-toggle" aria-label="Menu">☰</button>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero gold-panel">
+  <svg class="facet-lines" viewBox="0 0 1000 1000" preserveAspectRatio="none">
+    <g stroke="var(--ink)" stroke-width="1" fill="none" opacity="0.5">
+      <polyline points="0,780 180,900 60,1000"/>
+      <polyline points="60,1000 260,860 180,900"/>
+      <polyline points="820,0 1000,150 1000,0"/>
+      <polyline points="700,0 1000,230 820,0"/>
+      <polyline points="1000,150 1000,400 830,230"/>
+    </g>
+  </svg>
+
+  <div class="hero-logo">
+    <svg><use href="#cam-icon" style="color:var(--ink)"/></svg>
+    <div class="hero-logo-text">
+      <span class="l1">RIAD</span>
+      <span class="l2">RAW</span>
+    </div>
+  </div>
+
+  <div class="hero-divider"><div class="bar"></div></div>
+
+  <h1>MES<br>VISUELS</h1>
+
+  <p class="hero-sub">Photographe événementiel & sportif basé à Nancy.</p>
+
+  <a href="https://instagram.com/riad.raw" target="_blank" rel="noopener" class="hero-ig">
+    <svg width="18" height="18"><use href="#ig-icon"/></svg> @riad.raw
+  </a>
+
+  <div class="scroll-cue"><div class="line"></div>SCROLL</div>
+</header>
+
+<!-- ================= ALBUM ================= -->
+<section id="work">
+  <div class="section-head" style="max-width:1400px; margin:120px auto 0; padding:0 6vw 20px;">
+    <h2>Album</h2>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-filter="all">Tout</button>
+  </div>
+
+  <div class="grid" id="gallery-grid">
+    <p class="empty-msg mono" id="empty-msg">Aucune photo trouvée pour l'instant — ajoute tes dossiers dans <code>images/</code> puis redéploie.</p>
+  </div>
+</section>
+
+<!-- ================= LIGHTBOX ================= -->
+<div id="lightbox" class="lightbox">
+  <button class="lb-close" id="lb-close" aria-label="Fermer">✕</button>
+  <div class="lb-title-bar">
+    <span id="lb-title"></span>
+    <span id="lb-count" class="mono"></span>
+  </div>
+  <button class="lb-nav lb-prev" id="lb-prev" aria-label="Précédent">‹</button>
+  <img id="lb-img" class="lb-img" src="" alt="">
+  <button class="lb-nav lb-next" id="lb-next" aria-label="Suivant">›</button>
+</div>
+
+<!-- ================= VIDÉO (à part, un seul élément) ================= -->
+<section class="section" id="video-section">
+  <div class="section-head">
+    <h2>Vidéo</h2>
+  </div>
+  <div class="video-block">
+    <div class="video-thumb">
+      <!-- Remplace ce bloc par un <iframe> YouTube/Instagram, voir instructions -->
+      <div class="frame-placeholder">Ta vidéo ici</div>
+    </div>
+    <div class="video-caption">Raya Street Food — Publicité</div>
+  </div>
+</section>
+
+<!-- ================= mid panel ================= -->
+<div class="gold-panel title-panel">
+  <svg class="facet-lines" viewBox="0 0 1000 1000" preserveAspectRatio="none">
+    <g stroke="var(--ink)" stroke-width="1" fill="none" opacity="0.5">
+      <polyline points="1000,0 800,120 1000,220"/>
+      <polyline points="0,1000 200,850 0,750"/>
+    </g>
+  </svg>
+  <div class="kicker">Riad Raw — Nancy, France</div>
+  <h2>UN OEIL, UN INSTANT</h2>
+</div>
+
+<!-- ================= ABOUT ================= -->
+<section class="section" id="about">
+  <div class="section-head">
+    <h2>À propos</h2>
+  </div>
+  <div class="about-wrap">
+    <div class="about-portrait">Ton portrait ici<br>(remplace par &lt;img&gt;)</div>
+    <div class="about-text">
+      <p><strong>Riad</strong>, 19 ans, photographe et créateur de contenu basé à Nancy. Je couvre le football
+      et l'événementiel avec une approche directe — capter l'instant sans le sur-travailler.</p>
+      <p>À côté de la photo, je pilote <strong>Arobasedzair</strong>, un média sportif dédié au football algérien.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section class="section contact-section" id="contact">
+  <div class="contact-lead">On travaille<br>ensemble ?</div>
+  <p>Retrouve tous mes visuels et contacte-moi directement sur Instagram.</p>
+  <a href="https://instagram.com/riad.raw" target="_blank" rel="noopener" class="ig-button">
+    <svg><use href="#ig-icon"/></svg> @riad.raw
+  </a>
+</section>
+
+<footer>
+  <span>© 2026 RIAD RAW</span>
+  <span>NANCY, FRANCE</span>
+</footer>
+
+<script src="gallery-data.js"></script>
+<script>
+  const gallery = (window.GALLERY || []);
+  const grid = document.getElementById('gallery-grid');
+  const filtersBar = document.getElementById('filters');
+  const emptyMsg = document.getElementById('empty-msg');
+
+  const CATEGORY_LABELS = { football: 'Football', futsal: 'Futsal', voyage: 'Voyage' };
+
+  function renderGallery() {
+    if (gallery.length === 0) return; // laisse le message "vide" affiché
+
+    emptyMsg.remove();
+
+    // boutons de filtre dynamiques selon les catégories trouvées
+    const categories = [...new Set(gallery.map(a => a.category))];
+    categories.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.dataset.filter = cat;
+      btn.textContent = CATEGORY_LABELS[cat] || cat;
+      filtersBar.appendChild(btn);
+    });
+
+    // les cartes d'album
+    gallery.forEach((album, i) => {
+      const frame = document.createElement('div');
+      frame.className = 'frame';
+      frame.dataset.cat = album.category;
+      frame.dataset.index = i;
+      frame.innerHTML = `
+        <div class="frame-img">
+          <img src="${album.cover}" alt="${album.title}" loading="lazy">
+          <div class="frame-cat">${CATEGORY_LABELS[album.category] || album.category}</div>
+          <div class="frame-title">${album.title}</div>
+        </div>`;
+      frame.addEventListener('click', () => openLightbox(i, 0));
+      grid.appendChild(frame);
+    });
+
+    // filtres
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('.frame').forEach(frame => {
+          const show = filter === 'all' || frame.dataset.cat === filter;
+          frame.style.display = show ? 'block' : 'none';
+        });
+      });
+    });
+  }
+
+  // ---------- LIGHTBOX ----------
+  let currentAlbum = 0, currentPhoto = 0;
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lb-img');
+  const lbTitle = document.getElementById('lb-title');
+  const lbCount = document.getElementById('lb-count');
+
+  function openLightbox(albumIndex, photoIndex) {
+    currentAlbum = albumIndex; currentPhoto = photoIndex;
+    updateLightbox();
+    lb.classList.add('open');
+  }
+  function updateLightbox() {
+    const album = gallery[currentAlbum];
+    lbImg.src = album.photos[currentPhoto];
+    lbTitle.textContent = album.title;
+    lbCount.textContent = `${currentPhoto + 1} / ${album.photos.length}`;
+  }
+  function closeLightbox(){ lb.classList.remove('open'); }
+  function nextPhoto(){
+    const album = gallery[currentAlbum];
+    currentPhoto = (currentPhoto + 1) % album.photos.length;
+    updateLightbox();
+  }
+  function prevPhoto(){
+    const album = gallery[currentAlbum];
+    currentPhoto = (currentPhoto - 1 + album.photos.length) % album.photos.length;
+    updateLightbox();
+  }
+
+  document.getElementById('lb-close').addEventListener('click', closeLightbox);
+  document.getElementById('lb-next').addEventListener('click', nextPhoto);
+  document.getElementById('lb-prev').addEventListener('click', prevPhoto);
+  lb.addEventListener('click', (e) => { if (e.target === lb) closeLightbox(); });
+  document.addEventListener('keydown', (e) => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') nextPhoto();
+    if (e.key === 'ArrowLeft') prevPhoto();
+  });
+
+  renderGallery();
+</script>
+
+</body>
+</html>
