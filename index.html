@@ -137,15 +137,32 @@
   }
   .filter-btn:hover, .filter-btn.active{ color:var(--ink); background:var(--gold); border-color:var(--gold); }
 
-  .grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:2px; background:var(--line); padding:0 6vw 120px; max-width:1400px; margin:0 auto; }
-  @media (max-width:900px){ .grid{ grid-template-columns:repeat(2,1fr); } }
-  @media (max-width:560px){ .grid{ grid-template-columns:1fr; } }
+  .grid{
+    display:grid; grid-template-columns:repeat(4, 1fr);
+    grid-auto-rows:200px; grid-auto-flow:dense;
+    gap:3px; background:var(--line); padding:0 6vw 120px; max-width:1400px; margin:0 auto;
+    perspective:1200px;
+  }
+  .frame.span-wide{ grid-column:span 2; }
+  .frame.span-tall{ grid-row:span 2; }
+  @media (max-width:900px){
+    .grid{ grid-template-columns:repeat(2, 1fr); grid-auto-rows:180px; }
+    .frame.span-wide{ grid-column:span 2; }
+  }
+  @media (max-width:560px){
+    .grid{ grid-template-columns:1fr; grid-auto-rows:auto; }
+    .frame.span-wide, .frame.span-tall{ grid-column:span 1; grid-row:span 1; }
+    .frame .frame-img{ aspect-ratio:4/5; height:auto; }
+  }
 
-  .frame{ background:var(--bg); cursor:pointer; }
+  .frame{ background:var(--bg); cursor:pointer; height:100%; opacity:0; transform:translateY(30px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  .frame.in-view{ opacity:1; transform:translateY(0); }
   .frame-img{
-    position:relative; aspect-ratio:4/5;
+    position:relative; height:100%;
     background:linear-gradient(150deg, #1c1509 0%, #0a0806 100%);
     display:flex; align-items:center; justify-content:center; overflow:hidden;
+    transform-style:preserve-3d; will-change:transform;
+    transition:transform 0.15s ease-out;
   }
   .frame-img img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.5s cubic-bezier(0.22,1,0.36,1); }
   .frame:hover .frame-img img{ transform:scale(1.1); }
@@ -164,10 +181,22 @@
     font-family:'Inter'; font-weight:600; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.08em;
     color:var(--gold-light); background:rgba(10,8,6,0.6); padding:4px 10px; border:1px solid var(--gold-deep);
   }
+  .frame-count{
+    position:absolute; top:14px; right:14px;
+    font-family:'Inter'; font-weight:500; font-size:0.65rem; color:var(--cream-dim);
+    background:rgba(10,8,6,0.55); padding:4px 10px; backdrop-filter:blur(2px);
+  }
   .frame-title{
     position:absolute; bottom:16px; left:16px; right:16px;
     font-family:'Anton'; font-size:1.3rem; color:var(--gold-light);
+    transform:translateY(6px); transition:transform 0.35s ease;
   }
+  .frame-title::after{
+    content:''; display:block; width:34px; height:2px; background:var(--gold);
+    margin-top:8px; transform:scaleX(0); transform-origin:left; transition:transform 0.35s ease 0.05s;
+  }
+  .frame:hover .frame-title{ transform:translateY(0); }
+  .frame:hover .frame-title::after{ transform:scaleX(1); }
 
   /* ---------- ABOUT ---------- */
   .about-wrap{ display:grid; grid-template-columns:0.8fr 1.2fr; gap:64px; align-items:center; }
@@ -269,6 +298,18 @@
   }
   .album-view-item:hover img{ transform:scale(1.08); }
   @media (hover:none){ .album-view-item:hover img{ transform:none; } }
+
+  /* ---------- curseur personnalise "Voir l'album" ---------- */
+  .cursor-label{
+    position:fixed; top:0; left:0; z-index:500; pointer-events:none;
+    font-family:'Inter'; font-weight:600; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em;
+    color:var(--ink); background:var(--gold-light); border-radius:50%;
+    width:86px; height:86px; display:flex; align-items:center; justify-content:center; text-align:center;
+    opacity:0; transform:translate(-50%,-50%) scale(0.6);
+    transition:opacity 0.25s, transform 0.25s;
+  }
+  .cursor-label.visible{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  @media (hover:none), (max-width:900px){ .cursor-label{ display:none; } }
 
   footer{
     padding:32px 6vw; border-top:1px solid var(--line);
@@ -464,20 +505,63 @@
       filtersBar.appendChild(btn);
     });
 
-    // les cartes d'album
+    // les cartes d'album — motif asymetrique (bento)
+    const spanPattern = ['span-tall', '', '', 'span-wide', '', 'span-tall', '', 'span-wide', ''];
     gallery.forEach((album, i) => {
       const frame = document.createElement('div');
-      frame.className = 'frame';
+      frame.className = `frame ${spanPattern[i % spanPattern.length]}`;
       frame.dataset.cat = album.category;
       frame.dataset.index = i;
       frame.innerHTML = `
         <div class="frame-img">
           <img src="${album.cover}" alt="${album.title}" loading="lazy">
           <div class="frame-cat">${CATEGORY_LABELS[album.category] || album.category}</div>
+          <div class="frame-count">${album.photos.length} photo${album.photos.length > 1 ? 's' : ''}</div>
           <div class="frame-title">${album.title}</div>
         </div>`;
       frame.addEventListener('click', () => openAlbumView(i));
       grid.appendChild(frame);
+    });
+
+    // effet de bascule 3D au survol (desktop uniquement)
+    if (window.matchMedia('(hover:hover)').matches) {
+      document.querySelectorAll('.frame-img').forEach(el => {
+        el.addEventListener('mousemove', (e) => {
+          const r = el.getBoundingClientRect();
+          const x = (e.clientX - r.left) / r.width - 0.5;
+          const y = (e.clientY - r.top) / r.height - 0.5;
+          el.style.transform = `rotateY(${x * 10}deg) rotateX(${-y * 10}deg) scale(1.03)`;
+        });
+        el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+      });
+
+      // curseur personnalise "Voir l'album"
+      const cursorLabel = document.createElement('div');
+      cursorLabel.className = 'cursor-label';
+      cursorLabel.textContent = "Voir l'album";
+      document.body.appendChild(cursorLabel);
+      document.querySelectorAll('.frame').forEach(frame => {
+        frame.addEventListener('mouseenter', () => cursorLabel.classList.add('visible'));
+        frame.addEventListener('mouseleave', () => cursorLabel.classList.remove('visible'));
+      });
+      document.addEventListener('mousemove', (e) => {
+        cursorLabel.style.left = e.clientX + 'px';
+        cursorLabel.style.top = e.clientY + 'px';
+      });
+    }
+
+    // revelation au scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold:0.15 });
+    document.querySelectorAll('.frame').forEach((el, i) => {
+      el.style.transitionDelay = `${(i % 3) * 0.08}s`;
+      observer.observe(el);
     });
 
     // filtres
