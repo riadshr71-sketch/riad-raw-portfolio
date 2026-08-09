@@ -169,13 +169,14 @@
   .grid.uniform{ grid-auto-rows:auto; }
   .grid.uniform .frame-img{ aspect-ratio:4/5; height:auto; }
   @media (max-width:900px){
-    .grid{ grid-template-columns:repeat(2, 1fr); grid-auto-rows:180px; }
+    .grid{ grid-template-columns:repeat(2, 1fr) !important; grid-auto-rows:180px; }
     .frame.span-wide{ grid-column:span 2; }
   }
   @media (max-width:560px){
-    .grid{ grid-template-columns:1fr; grid-auto-rows:auto; }
+    .grid{ grid-template-columns:1fr !important; grid-auto-rows:auto; }
     .frame.span-wide, .frame.span-tall{ grid-column:span 1; grid-row:span 1; }
     .frame .frame-img{ aspect-ratio:4/5; height:auto; }
+    .grid.uniform .frame-img{ aspect-ratio:4/5; height:auto; }
   }
 
   .frame{ background:var(--bg); cursor:pointer; height:100%; opacity:0; transform:translateY(30px); transition:opacity 0.7s ease, transform 0.7s ease; }
